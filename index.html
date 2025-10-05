@@ -113,11 +113,11 @@
         });
         const t = await res.text();
         if (!res.ok) throw new Error(t);
-        msgEl.textContent = '✅ ส่งแจ้งเตือนเข้า Telegram แล้ว';
+        msgEl.textContent = '✅ สั่งซื้อสำเร็จ';
         msgEl.style.display = 'block';
         e.target.reset(); packEls.find(x=>x.value==='1').checked=true; qtyEl.value=10; recalc();
       } catch (err) {
-        msgEl.textContent = '❌ ส่งแจ้งเตือนไม่สำเร็จ: ' + err.message;
+        msgEl.textContent = '❌ สั่งซื้อไม่สำเร็จ: ' + err.message;
         msgEl.className = 'err';
         msgEl.style.display = 'block';
       }
