@@ -1,59 +1,68 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>ฟอร์มแจ้งซื้อแพ็ก (แจ้งเตือนเข้า Telegram)</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ซื้อแพ็ก (Telegram + Netlify Forms)</title>
   <style>
     :root{--bg:#0f172a;--panel:#111827;--text:#e5e7eb;--muted:#94a3b8;--border:#374151}
     *{box-sizing:border-box}
     body{margin:0;background:var(--bg);color:var(--text);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto}
-    .wrap{max-width:880px;margin:28px auto;padding:16px}
+    .wrap{max-width:900px;margin:24px auto;padding:16px}
     .card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:18px}
-    h1{margin:0 0 6px 0;font-size:22px}
-    p{margin:6px 0;color:var(--muted)}
+    h1{margin:0 0 8px 0;font-size:22px}
+    p{color:var(--muted);margin:6px 0}
     .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
     @media(max-width:820px){.row{grid-template-columns:1fr}}
     label{display:flex;flex-direction:column;gap:6px}
-    input,button{background:#0b1220;color:var(--text);border:1px solid var(--border);padding:10px 12px;border-radius:10px}
+    input,button{background:#0b1220;border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:10px}
     input[type=number]{appearance:textfield}
     .inline{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
-    .pill{border:1px solid var(--border);border-radius:10px;padding:6px 10px}
+    .pill{border:1px solid var(--border);border-radius:10px;padding:6px 10px;display:inline-block}
     .kpi{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:8px}
-    .ok{color:#bbf7d0}.err{color:#fecaca}
+    .ok{color:#bbf7d0} .err{color:#fecaca}
     .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+    .box{border:1px dashed var(--border);border-radius:12px;padding:12px;margin-top:12px}
+    table{width:100%;border-collapse:collapse;margin-top:8px}
+    th,td{padding:8px 10px;border-bottom:1px solid var(--border);font-size:13px}
+    th{color:#cbd5e1;text-align:left}
+    td.right{text-align:right}
   </style>
 </head>
 <body>
   <div class="wrap">
     <div class="card">
       <h1>สั่งซื้อแพ็ก</h1>
-      <p>กดยืนยันแล้วระบบจะ <b>แจ้งเตือนไป Telegram</b> ผ่าน Netlify Function</p>
+      <p>กรอก User <b>เลือกจำนวนหรือแพ็กที่ต้องการ</b> กดยืนยัน <b>ทำรายการฝากตามยอดที่แจ้ง</b> สำเร็จแล้วทักหาแอดมินแจ้งชื่อ User พร้อมแนบสลิป</p>
 
-      <form id="f">
+      <!-- Netlify Forms -->
+      <form id="topupForm" name="topup" method="POST" data-netlify="true" netlify-honeypot="bot-field">
+        <input type="hidden" name="form-name" value="topup" />
+        <p style="display:none"><label>อย่าเติมช่องนี้: <input name="bot-field" /></label></p>
+
         <div class="row" style="margin-top:8px">
           <label>ชื่อผู้ใช้ (User)
-            <input id="user" required placeholder="เช่น boss99">
+            <input id="user" name="user" required placeholder="เช่น boss99">
           </label>
           <label>จำนวนไม้ (Qty)
-            <input id="qty" type="number" min="1" step="1" value="10" required>
+            <input id="qty" name="qty" type="number" min="1" step="1" value="10" required>
           </label>
         </div>
 
         <div class="row" style="margin-top:8px">
           <label>เลือกแพ็ก
             <div class="inline">
-              <label><input type="radio" name="pack" value="1" checked> ไม่เลือกแพ็ก (20 บาท/ไม้)</label>
-              <label><input type="radio" name="pack" value="10"> 10 ไม้ = 200 บาท</label>
+              <label><input type="radio" name="pack" value="1" checked> ไม่เลือกแพ็ก (20 บาท/ไม้ — ปรับจำนวนไม้เองได้)</label>
               <label><input type="radio" name="pack" value="30"> 30 ไม้ = 300 บาท</label>
               <label><input type="radio" name="pack" value="50"> 50 ไม้ = 500 บาท</label>
+              <label><input type="radio" name="pack" value="100"> 100 ไม้ = 999 บาท</label>
             </div>
           </label>
 
           <div>
             <div class="kpi">
-              <div class="pill">ราคา/ไม้: <b id="pp">—</b></div>
-              <div class="pill">รวมทั้งหมด: <b id="sum">—</b></div>
+              <div class="pill">ราคา/ไม้: <b id="pricePer">—</b></div>
+              <div class="pill">รวมทั้งหมด: <b id="total">—</b></div>
               <div class="pill">แพ็ก: <b id="packLabel">ไม่เลือกแพ็ก (20 บาท/ไม้)</b></div>
             </div>
           </div>
@@ -61,67 +70,177 @@
 
         <div class="actions">
           <button type="submit">ยืนยัน</button>
+          <button type="button" id="showLocal">แสดงรายการ</button>
         </div>
         <p id="msg" class="ok" style="display:none"></p>
       </form>
+
+      <!-- สรุปคำสั่ง + ปุ่มเปิดเผยบัญชี + ข้อมูลบัญชี -->
+      <div id="summary" class="box" style="display:none"></div>
+      <div id="confirmBox" class="box" style="display:none">
+        <b>ตรวจสอบถูกต้อง กดเพื่อรับรายละเอียดชำระเงิน</b><br/>
+        <button id="confirmPay">ยืนยันพร้อมจ่าย</button>
+      </div>
+      <div id="payeeBox" class="box" style="display:none"></div>
+
+      <!-- LocalStorage -->
+      <div id="localBox" style="display:none">
+        <h3>บันทึกในเครื่องนี้</h3>
+        <table id="localTable">
+          <thead><tr><th>เวลา</th><th>User</th><th>Qty</th><th>แพ็ก</th><th class="right">ราคา/ไม้</th><th class="right">รวม</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
     </div>
   </div>
 
   <script>
-    // ===== helper UI =====
+    // ====== ข้อมูลผู้รับเงิน (แสดงหลังลูกค้ากดยืนยันพร้อมจ่าย) ======
+    const PAYEE = { name: 'ชื่อ–นามสกุล ผู้รับเงิน', bank: 'ชื่อธนาคาร', account: '123-4-56789-0' };
+
+    // ====== Helper / คำนวณ ======
     const $ = (s)=>document.querySelector(s);
+    const form = $('#topupForm');
     const qtyEl = $('#qty');
     const msgEl = $('#msg');
+    const elPP = $('#pricePer'), elSum = $('#total'), elPackLabel = $('#packLabel');
     const packEls = [...document.querySelectorAll('input[name=pack]')];
-    const elPP = $('#pp'), elSum = $('#sum'), elLabel = $('#packLabel');
-    const packLabel = (p)=> p==1?'ไม่เลือกแพ็ก (20 บาท/ไม้)': p==10?'10 ไม้ = 200 บาท': p==30?'30 ไม้ = 300 บาท':'50 ไม้ = 500 บาท';
-    const pricePer  = (p)=> (p==30||p==50)?10:20;
+
+    function currentPack(){ return parseInt(packEls.find(x=>x.checked).value,10); }
+    function packLabel(p){
+      if(p===1)   return 'ไม่เลือกแพ็ก (20 บาท/ไม้)';
+      if(p===30)  return '30 ไม้ = 300 บาท';
+      if(p===50)  return '50 ไม้ = 500 บาท';
+      if(p===100) return '100 ไม้ = 999 บาท';
+      return `${p} ไม้`;
+    }
+    function pricePer(p){
+      if(p===1)   return 20;    // ไม่เลือกแพ็ก
+      if(p===30)  return 10;    // 300 / 30
+      if(p===50)  return 10;    // 500 / 50
+      if(p===100) return 9.99;  // 999 / 100
+      return 20;
+    }
+
+    function applyQtyLock(){
+      const p = currentPack();
+      if(p === 1){
+        qtyEl.removeAttribute('disabled');
+      }else{
+        qtyEl.value = p;            // ล็อกจำนวนไม้ให้เท่ากับแพ็ก
+        qtyEl.setAttribute('disabled','disabled');
+      }
+    }
+
     function recalc(){
-      const p = parseInt(packEls.find(x=>x.checked).value,10);
+      applyQtyLock();
+      const p = currentPack();
       const q = Math.max(1, Math.floor(parseFloat(qtyEl.value||'1')));
       const pp = pricePer(p);
       elPP.textContent = pp.toFixed(2);
       elSum.textContent = (pp*q).toFixed(2);
-      elLabel.textContent = packLabel(p);
+      elPackLabel.textContent = packLabel(p);
     }
+
     qtyEl.addEventListener('input', recalc);
     packEls.forEach(r=>r.addEventListener('change', recalc));
     recalc();
 
-    // ===== submit → call Netlify Function to notify Telegram =====
-    document.getElementById('f').addEventListener('submit', async (e)=>{
+    // ====== LocalStorage ======
+    const KEY='topup_records_v5';
+    const loadLocal=()=>{ try{return JSON.parse(localStorage.getItem(KEY)||'[]')}catch(_){return[]} };
+    const saveLocal=list=>localStorage.setItem(KEY, JSON.stringify(list));
+    const pushLocal=rec=>{ const list=loadLocal(); list.unshift(rec); saveLocal(list); };
+    function renderLocal(){
+      const tb=document.querySelector('#localTable tbody'); tb.innerHTML='';
+      for(const r of loadLocal()){
+        const tr=document.createElement('tr');
+        tr.innerHTML=`<td class="muted">${new Date(r.ts).toLocaleString()}</td>
+                      <td>${r.user}</td><td>${r.qty}</td><td>${packLabel(r.pack)}</td>
+                      <td class="right">${r.pricePer.toFixed(2)}</td><td class="right">${r.total.toFixed(2)}</td>`;
+        tb.appendChild(tr);
+      }
+    }
+    document.getElementById('showLocal').onclick=()=>{ document.getElementById('localBox').style.display='block'; renderLocal(); };
+    document.getElementById('clearLocal').onclick=()=>{ if(confirm('ล้างข้อมูลในเครื่องนี้ทั้งหมด?')){ saveLocal([]); renderLocal(); } };
+
+    // ====== แจ้ง Telegram (Netlify Function เดิม) ======
+    async function sendTelegram({ user, packText, qty, pricePerUnit, total }){
+      const res = await fetch('/.netlify/functions/notify', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ user, pack: packText, qty, pricePerUnit, total })
+      });
+      const t = await res.text();
+      if(!res.ok) throw new Error(t||'Telegram notify failed');
+      return t;
+    }
+
+    // ====== ส่งฟอร์ม ======
+    const summaryEl = document.getElementById('summary');
+    const confirmBox = document.getElementById('confirmBox');
+    const payeeBox   = document.getElementById('payeeBox');
+
+    form.addEventListener('submit', async (e)=>{
       e.preventDefault();
-      msgEl.style.display='none';
+      msgEl.style.display='none'; msgEl.className='ok';
+      summaryEl.style.display='none'; confirmBox.style.display='none'; payeeBox.style.display='none';
 
       const user = $('#user').value.trim();
-      const p = parseInt(packEls.find(x=>x.checked).value,10);
+      const p = currentPack();
       const q = Math.max(1, Math.floor(parseFloat(qtyEl.value||'1')));
       const pp = pricePer(p);
       const total = pp*q;
+      const packText = packLabel(p);
 
-      try {
-        const res = await fetch('/.netlify/functions/notify', {
-          method: 'POST',
-          headers: { 'Content-Type':'application/json' },
-          body: JSON.stringify({
-            user,
-            pack: packLabel(p),
-            qty: q,
-            pricePerUnit: pp,
-            total
-          })
+      // เพิ่มฟิลด์คำนวณลง Netlify Forms ด้วย
+      const fd = new FormData(form);
+      fd.append('pack', p);
+      fd.append('price_per_unit', pp.toFixed(2));
+      fd.append('total_price', total.toFixed(2));
+
+      // 1) LocalStorage
+      pushLocal({ ts:Date.now(), user, qty:q, pack:p, pricePer:pp, total });
+
+      // 2) Netlify Forms
+      try{
+        await fetch('/', {
+          method:'POST',
+          headers:{'Content-Type':'application/x-www-form-urlencoded'},
+          body:new URLSearchParams([...fd]).toString()
         });
-        const t = await res.text();
-        if (!res.ok) throw new Error(t);
+      }catch(_){}
+
+      // 3) Telegram
+      try{
+        await sendTelegram({ user, packText, qty:q, pricePerUnit:pp, total });
         msgEl.textContent = '✅ สั่งซื้อสำเร็จ';
-        msgEl.style.display = 'block';
-        e.target.reset(); packEls.find(x=>x.value==='1').checked=true; qtyEl.value=10; recalc();
-      } catch (err) {
-        msgEl.textContent = '❌ สั่งซื้อไม่สำเร็จ: ' + err.message;
+      }catch(err){
+        msgEl.textContent = '⚠️ สั่งซื้อไม่สำเร็จ : ' + err.message;
         msgEl.className = 'err';
-        msgEl.style.display = 'block';
       }
+      msgEl.style.display='block';
+
+      // 4) สรุป + ปุ่มยืนยันพร้อมจ่าย
+      summaryEl.innerHTML = `<b>สรุปคำสั่ง</b><br/>
+        ผู้ใช้: <b>${user}</b><br/>
+        แพ็ก: <b>${packText}</b> • จำนวนไม้: <b>${q}</b><br/>
+        ราคา/ไม้: <b>${pp.toFixed(2)}</b> • รวม: <b>${total.toFixed(2)}</b> บาท`;
+      summaryEl.style.display='block';
+      confirmBox.style.display='block';
+
+      // reset form
+      form.reset(); packEls.find(x=>x.value==='1').checked=true; qtyEl.removeAttribute('disabled'); qtyEl.value=10; recalc();
     });
+
+    // ====== แสดงรายละเอียดผู้รับเงินหลังยืนยัน ======
+    document.getElementById('confirmPay').onclick=()=>{
+      payeeBox.innerHTML = `<b>รายละเอียดชำระเงิน</b><br/>
+        ชื่อ–นามสกุล: <b>${PAYEE.name}</b><br/>
+        ธนาคาร: <b>${PAYEE.bank}</b><br/>
+        เลขบัญชี: <b>${PAYEE.account}</b>`;
+      payeeBox.style.display='block';
+    };
   </script>
 </body>
 </html>
