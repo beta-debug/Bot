@@ -89,24 +89,6 @@
   </div>
 
   <script>
-    const PAYEE = { name: 'ชื่อ–นามสกุล ผู้รับเงิน', bank: 'ชื่อธนาคาร', account: '123-4-56789-0' };
-
-      async function sendToSheet({ user, pack, qty, pricePerUnit, total }) {
-        try {
-          const body = new URLSearchParams({
-            secret: GAS_SECRET,
-            user, pack, qty,
-            pricePerUnit, total,
-            ua: navigator.userAgent,
-            ip: ''
-          });
-          await fetch(GAS_URL, { method: 'POST', body });
-        } catch (e) {
-          console.log('sendToSheet error', e);
-        }
-      }
-  
-  <script>
     // ===== helper UI =====
     const $ = (s)=>document.querySelector(s);
     const qtyEl = $('#qty');
