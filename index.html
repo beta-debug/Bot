@@ -43,48 +43,27 @@
         <div class="row" style="margin-top:8px">
           <label>เลือกแพ็ก
             <div class="inline">
-              <label><input type="radio" name="pack" value="1" checked /> ไม่เลือกแพ็ก (20 บาท/ไม้)</label>
-              <label><input type="radio" name="pack" value="10" /> 10 ไม้ = 200 บาท</label>
-              <label><input type="radio" name="pack" value="30" /> 30 ไม้ = 300 บาท</label>
-              <label><input type="radio" name="pack" value="50" /> 50 ไม้ = 500 บาท</label>
+              <label><input type="radio" name="pack" value="1" checked> ไม่เลือกแพ็ก (20 บาท/ไม้)</label>
+              <label><input type="radio" name="pack" value="10"> 10 ไม้ = 200 บาท</label>
+              <label><input type="radio" name="pack" value="30"> 30 ไม้ = 300 บาท</label>
+              <label><input type="radio" name="pack" value="50"> 50 ไม้ = 500 บาท</label>
             </div>
           </label>
 
           <div>
             <div class="kpi">
-              <div class="pill">ราคา/ไม้: <b id="pricePer">—</b></div>
-              <div class="pill">รวมทั้งหมด: <b id="total">—</b></div>
-              <div class="pill">สรุปแพ็ก: <b id="packLabel">ไม่เลือกแพ็ก (20 บาท/ไม้)</b></div>
+              <div class="pill">ราคา/ไม้: <b id="pp">—</b></div>
+              <div class="pill">รวมทั้งหมด: <b id="sum">—</b></div>
+              <div class="pill">แพ็ก: <b id="packLabel">ไม่เลือกแพ็ก (20 บาท/ไม้)</b></div>
             </div>
-            <p class="muted">* 30/50 คิด 10 บาท/ไม้, ไม่เลือกแพ็กคิด 20 บาท/ไม้</p>
           </div>
         </div>
 
         <div class="actions">
           <button type="submit">ยืนยัน</button>
-          <button type="button" id="showLocal">แสดงบันทึกในเครื่องนี้</button>
-          <button type="button" id="clearLocal">ล้างบันทึก</button>
         </div>
-
         <p id="msg" class="ok" style="display:none"></p>
       </form>
-
-      <div id="summary" class="box" style="display:none"></div>
-
-      <div id="confirmBox" class="box" style="display:none">
-        <b>ตรวจสอบถูกต้องแล้ว กดเพื่อรับรายละเอียดชำระเงิน</b><br/>
-        <button id="confirmPay">ยืนยันพร้อมจ่าย</button>
-      </div>
-
-      <div id="payeeBox" class="box" style="display:none"></div>
-
-      <div id="localBox" style="display:none">
-        <h3>บันทึกในเครื่องนี้</h3>
-        <table id="localTable">
-          <thead><tr><th>เวลา</th><th>User</th><th>Qty</th><th>แพ็ก</th><th class="right">ราคา/ไม้</th><th class="right">รวม</th></tr></thead>
-          <tbody></tbody>
-        </table>
-      </div>
     </div>
   </div>
 
