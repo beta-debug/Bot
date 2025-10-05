@@ -7,13 +7,18 @@ exports.handler = async (event) => {
     const data = JSON.parse(event.body || '{}');
     const { user, pack, qty, pricePerUnit, total } = data;
 
-    const token  = process.env.TELEGRAM_TOKEN;
-    const chatId = process.env.TELEGRAM_CHAT_ID;
-    if (!token || !chatId) {
-      return { statusCode: 500, body: 'Missing TELEGRAM_TOKEN or TELEGRAM_CHAT_ID' };
-    }
+// ...
+const token  = process.env.TELEGRAM_TOKEN;
+const chatIds = (process.env.TELEGRAM_CHAT_ID || '')
+  .split(',')
+  .map(s => s.trim())
+  .filter(Boolean);
 
-    const text =
+if (!token || chatIds.length === 0) {
+  return { statusCode: 500, body: 'Missing TELEGRAM_TOKEN or TELEGRAM_CHAT_ID' };
+}
+
+const text =
 `🧾 คำขอเติมแพ็กใหม่
 • User: ${user}
 • แพ็ก: ${pack}
@@ -22,16 +27,20 @@ exports.handler = async (event) => {
 • รวม: ${Number(total).toFixed(2)} บาท
 ⏰ ${new Date().toLocaleString()}`;
 
-    const api = `https://api.telegram.org/bot${token}/sendMessage`;
-    const res = await fetch(api, {
-      method: 'POST',
-      headers: { 'Content-Type':'application/json' },
-      body: JSON.stringify({ chat_id: chatId, text })
-    });
-    const j = await res.json();
-    if (!j.ok) throw new Error(j.description || 'Telegram sendMessage failed');
+const api = `https://api.telegram.org/bot${token}/sendMessage`;
 
-    return { statusCode: 200, body: 'OK' };
+// ส่งหาทุก chat id พร้อมกัน
+await Promise.all(chatIds.map(cid =>
+  fetch(api, {
+    method: 'POST',
+    headers: { 'Content-Type':'application/json' },
+    body: JSON.stringify({ chat_id: cid, text })
+  }).then(r => r.json())
+    .then(j => { if (!j.ok) throw new Error(j.description || 'Telegram failed'); })
+));
+// ...
+return { statusCode: 200, body: 'OK' };
+
   } catch (err) {
     return { statusCode: 500, body: 'ERR: ' + err.message };
   }
