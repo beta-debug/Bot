@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ฟอร์มแจ้งซื้อแพ็ก (แจ้งเตือนเข้า Telegram)</title>
+  <style>
+    :root{--bg:#0f172a;--panel:#111827;--text:#e5e7eb;--muted:#94a3b8;--border:#374151}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto}
+    .wrap{max-width:880px;margin:28px auto;padding:16px}
+    .card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:18px}
+    h1{margin:0 0 6px 0;font-size:22px}
+    p{margin:6px 0;color:var(--muted)}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    @media(max-width:820px){.row{grid-template-columns:1fr}}
+    label{display:flex;flex-direction:column;gap:6px}
+    input,button{background:#0b1220;color:var(--text);border:1px solid var(--border);padding:10px 12px;border-radius:10px}
+    input[type=number]{appearance:textfield}
+    .inline{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+    .pill{border:1px solid var(--border);border-radius:10px;padding:6px 10px}
+    .kpi{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:8px}
+    .ok{color:#bbf7d0}.err{color:#fecaca}
+    .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>สั่งซื้อแพ็ก</h1>
+      <p>กดยืนยันแล้วระบบจะ <b>แจ้งเตือนไป Telegram</b> ผ่าน Netlify Function</p>
+
+      <form id="f">
+        <div class="row" style="margin-top:8px">
+          <label>ชื่อผู้ใช้ (User)
+            <input id="user" required placeholder="เช่น boss99">
+          </label>
+          <label>จำนวนไม้ (Qty)
+            <input id="qty" type="number" min="1" step="1" value="10" required>
+          </label>
+        </div>
+
+        <div class="row" style="margin-top:8px">
+          <label>เลือกแพ็ก
+            <div class="inline">
+              <label><input type="radio" name="pack" value="1" checked> ไม่เลือกแพ็ก (20 บาท/ไม้)</label>
+              <label><input type="radio" name="pack" value="10"> 10 ไม้ = 200 บาท</label>
+              <label><input type="radio" name="pack" value="30"> 30 ไม้ = 300 บาท</label>
+              <label><input type="radio" name="pack" value="50"> 50 ไม้ = 500 บาท</label>
+            </div>
+          </label>
+
+          <div>
+            <div class="kpi">
+              <div class="pill">ราคา/ไม้: <b id="pp">—</b></div>
+              <div class="pill">รวมทั้งหมด: <b id="sum">—</b></div>
+              <div class="pill">แพ็ก: <b id="packLabel">ไม่เลือกแพ็ก (20 บาท/ไม้)</b></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button type="submit">ยืนยัน</button>
+        </div>
+        <p id="msg" class="ok" style="display:none"></p>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // ===== helper UI =====
+    const $ = (s)=>document.querySelector(s);
+    const qtyEl = $('#qty');
+    const msgEl = $('#msg');
+    const packEls = [...document.querySelectorAll('input[name=pack]')];
+    const elPP = $('#pp'), elSum = $('#sum'), elLabel = $('#packLabel');
+    const packLabel = (p)=> p==1?'ไม่เลือกแพ็ก (20 บาท/ไม้)': p==10?'10 ไม้ = 200 บาท': p==30?'30 ไม้ = 300 บาท':'50 ไม้ = 500 บาท';
+    const pricePer  = (p)=> (p==30||p==50)?10:20;
+    function recalc(){
+      const p = parseInt(packEls.find(x=>x.checked).value,10);
+      const q = Math.max(1, Math.floor(parseFloat(qtyEl.value||'1')));
+      const pp = pricePer(p);
+      elPP.textContent = pp.toFixed(2);
+      elSum.textContent = (pp*q).toFixed(2);
+      elLabel.textContent = packLabel(p);
+    }
+    qtyEl.addEventListener('input', recalc);
+    packEls.forEach(r=>r.addEventListener('change', recalc));
+    recalc();
+
+    // ===== submit → call Netlify Function to notify Telegram =====
+    document.getElementById('f').addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      msgEl.style.display='none';
+
+      const user = $('#user').value.trim();
+      const p = parseInt(packEls.find(x=>x.checked).value,10);
+      const q = Math.max(1, Math.floor(parseFloat(qtyEl.value||'1')));
+      const pp = pricePer(p);
+      const total = pp*q;
+
+      try {
+        const res = await fetch('/.netlify/functions/notify', {
+          method: 'POST',
+          headers: { 'Content-Type':'application/json' },
+          body: JSON.stringify({
+            user,
+            pack: packLabel(p),
+            qty: q,
+            pricePerUnit: pp,
+            total
+          })
+        });
+        const t = await res.text();
+        if (!res.ok) throw new Error(t);
+        msgEl.textContent = '✅ ส่งแจ้งเตือนเข้า Telegram แล้ว';
+        msgEl.style.display = 'block';
+        e.target.reset(); packEls.find(x=>x.value==='1').checked=true; qtyEl.value=10; recalc();
+      } catch (err) {
+        msgEl.textContent = '❌ ส่งแจ้งเตือนไม่สำเร็จ: ' + err.message;
+        msgEl.className = 'err';
+        msgEl.style.display = 'block';
+      }
+    });
+  </script>
+</body>
+</html>
