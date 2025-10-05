@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>ซื้อแพ็ก (Telegram + Netlify Forms)</title>
+  <title>ฟอร์มแจ้งซื้อแพ็ก (Telegram + Netlify Forms)</title>
   <style>
     :root{--bg:#0f172a;--panel:#111827;--text:#e5e7eb;--muted:#94a3b8;--border:#374151}
     *{box-sizing:border-box}
@@ -33,8 +33,7 @@
   <div class="wrap">
     <div class="card">
       <h1>สั่งซื้อแพ็ก</h1>
-      <p>กรอก User <b>เลือกจำนวนหรือแพ็กที่ต้องการ</b> กดยืนยัน <b>ทำรายการฝากตามยอดที่แจ้ง</b> สำเร็จแล้วทักหาแอดมินแจ้งชื่อ User พร้อมแนบสลิป</p>
-
+ <p>กรอก User <b>เลือกจำนวนหรือแพ็กที่ต้องการ</b> กดยืนยัน <b>ทำรายการฝากตามยอดที่แจ้ง</b> สำเร็จแล้วทักหาแอดมินแจ้งชื่อ User พร้อมแนบสลิป</p>
       <!-- Netlify Forms -->
       <form id="topupForm" name="topup" method="POST" data-netlify="true" netlify-honeypot="bot-field">
         <input type="hidden" name="form-name" value="topup" />
@@ -52,7 +51,7 @@
         <div class="row" style="margin-top:8px">
           <label>เลือกแพ็ก
             <div class="inline">
-              <label><input type="radio" name="pack" value="1" checked> ไม่เลือกแพ็ก (20 บาท/ไม้)</label>
+              <label><input type="radio" name="pack" value="1" checked> ไม่เลือกแพ็ก (20 บาท/ไม้ — ปรับจำนวนไม้เองได้)</label>
               <label><input type="radio" name="pack" value="30"> 30 ไม้ = 300 บาท</label>
               <label><input type="radio" name="pack" value="50"> 50 ไม้ = 500 บาท</label>
               <label><input type="radio" name="pack" value="100"> 100 ไม้ = 999 บาท</label>
@@ -70,7 +69,8 @@
 
         <div class="actions">
           <button type="submit">ยืนยัน</button>
-          <button type="button" id="showLocal">แสดงรายการ</button>
+          <button type="button" id="showLocal">แสดงบันทึกในเครื่องนี้</button>
+          <button type="button" id="clearLocal">ล้างบันทึก</button>
         </div>
         <p id="msg" class="ok" style="display:none"></p>
       </form>
@@ -214,9 +214,9 @@
       // 3) Telegram
       try{
         await sendTelegram({ user, packText, qty:q, pricePerUnit:pp, total });
-        msgEl.textContent = '✅ สั่งซื้อสำเร็จ';
+        msgEl.textContent = '✅ ส่งคำสั่งและแจ้งเตือนสำเร็จ';
       }catch(err){
-        msgEl.textContent = '⚠️ สั่งซื้อไม่สำเร็จ : ' + err.message;
+        msgEl.textContent = '⚠️ ส่งเข้า Telegram ไม่สำเร็จ แต่บันทึกข้อมูลแล้ว: ' + err.message;
         msgEl.className = 'err';
       }
       msgEl.style.display='block';
