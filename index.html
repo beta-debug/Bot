@@ -66,6 +66,46 @@
           <button type="button" id="clearLocal">ล้างบันทึก</button>
         </div>
 
+         <p id="msg" class="ok" style="display:none"></p>
+      </form>
+
+      <div id="summary" class="box" style="display:none"></div>
+
+      <div id="confirmBox" class="box" style="display:none">
+        <b>ตรวจสอบถูกต้องแล้ว กดเพื่อรับรายละเอียดชำระเงิน</b><br/>
+        <button id="confirmPay">ยืนยันพร้อมจ่าย</button>
+      </div>
+
+      <div id="payeeBox" class="box" style="display:none"></div>
+
+      <div id="localBox" style="display:none">
+        <h3>บันทึกในเครื่องนี้</h3>
+        <table id="localTable">
+          <thead><tr><th>เวลา</th><th>User</th><th>Qty</th><th>แพ็ก</th><th class="right">ราคา/ไม้</th><th class="right">รวม</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+<script>
+    const PAYEE = { name: 'ชื่อ–นามสกุล ผู้รับเงิน', bank: 'ชื่อธนาคาร', account: '123-4-56789-0' };
+
+      async function sendToSheet({ user, pack, qty, pricePerUnit, total }) {
+        try {
+          const body = new URLSearchParams({
+            secret: GAS_SECRET,
+            user, pack, qty,
+            pricePerUnit, total,
+            ua: navigator.userAgent,
+            ip: ''
+          });
+          await fetch(GAS_URL, { method: 'POST', body });
+        } catch (e) {
+          console.log('sendToSheet error', e);
+        }
+      }
+  
   <script>
     // ===== helper UI =====
     const $ = (s)=>document.querySelector(s);
