@@ -1,11 +1,16 @@
-const CACHE = "haven-pwa-v1";
+const CACHE = "baccarat-v1";
 const ASSETS = [
   "./",
   "./index.html",
   "./styles.css",
   "./app.js",
   "./manifest.webmanifest",
-  "./icon.svg"
+  "./sw.js",
+  "./icon-192.png",
+  "./icon-512.png",
+  "./apple-touch-icon.png",
+  "./favicon-32.png",
+  "./favicon-16.png"
 ];
 
 self.addEventListener("install", (event) => {
