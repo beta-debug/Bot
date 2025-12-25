@@ -7,7 +7,7 @@ const STORAGE_SESSION = "pwa_session_v1";
 const STORAGE_BASEURL = "pwa_baseurl_v1";
 
 const ROOMS = [
-const ROOM_REDIRECT_BASE = "https://bbweb.bikimex.com/player/webMain.jsp;jsessionid=8DF7306D15DA505620D2A30599D3A268?dm=1&title=1&srw=1";
+const ROOM_REDIRECT_BASE = "https://YOUR_BACKEND/room";
   { id: 1, name: "Baccarat Room 1" },
   { id: 2, name: "Baccarat Room 2" },
   { id: 3, name: "Baccarat Room 3" },
