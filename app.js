@@ -7,6 +7,7 @@ const STORAGE_SESSION = "pwa_session_v1";
 const STORAGE_BASEURL = "pwa_baseurl_v1";
 
 const ROOMS = [
+const ROOM_REDIRECT_BASE = "https://bbweb.bikimex.com/player/webMain.jsp;jsessionid=8DF7306D15DA505620D2A30599D3A268?dm=1&title=1&srw=1";
   { id: 1, name: "Baccarat Room 1" },
   { id: 2, name: "Baccarat Room 2" },
   { id: 3, name: "Baccarat Room 3" },
@@ -192,29 +193,34 @@ function renderLobby() {
 
   setTopbar();
 
-  const baseUrl = (localStorage.getItem(STORAGE_BASEURL) || "").trim();
-
   root.innerHTML = `
     <div class="card">
-      <h1>เลือกห้อง</h1>
-      <p>ตั้งค่าโดเมน/ลิงก์ห้องไว้ก่อน (ยังไม่มีตอนนี้ก็เว้นได้)</p>
-
-      <div class="field">
-        <label>Base URL (ใส่โดเมนตอนมี เช่น https://yourdomain.com)</label>
-        <input id="baseUrl" placeholder="เช่น https://example.com" value="${escapeHtml(baseUrl)}" />
-        <p class="small">ระบบจะเปิดเป็น: Base URL + /room?id=เลขห้อง</p>
-      </div>
-
-      <div class="actions">
-        <button class="btn" id="saveBaseBtn">บันทึกโดเมน</button>
-        <button class="btnGhost" id="clearBaseBtn">ล้างโดเมน</button>
-      </div>
+      <h1>เลือกห้องบาคาร่า</h1>
+      <p>เลือกห้องแล้วกดเข้า ระบบจะเปิดหน้าต่างแยก (Custom Tab) ออกไป</p>
 
       <div class="list" id="roomList"></div>
 
       <p class="small" id="lobbyMsg"></p>
     </div>
   `;
+
+  const list = document.getElementById("roomList");
+  list.innerHTML = ROOMS.map(r => `
+    <div class="room">
+      <div class="meta">
+        <div class="name">${escapeHtml(r.name)}</div>
+      </div>
+      <button class="btn2" data-room="${r.id}">เข้า</button>
+    </div>
+  `).join("");
+
+  list.querySelectorAll("button[data-room]").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      const id = Number(e.currentTarget.getAttribute("data-room"));
+      openRoom(id);
+    });
+  });
+}
 
   document.getElementById("saveBaseBtn").onclick = () => {
     const v = document.getElementById("baseUrl").value.trim();
@@ -249,35 +255,28 @@ function renderLobby() {
 }
 
 function makeRoomUrl(roomId) {
-  const base = (localStorage.getItem(STORAGE_BASEURL) || "").trim();
-  if (!base) return "ยังไม่ได้ตั้งค่าโดเมน (จะเปิด https://example.com ชั่วคราว)";
-  return `${base.replace(/\/+$/, "")}/room?id=${encodeURIComponent(roomId)}`;
+  // ถ้าแอดมินตั้งหลังบ้านแล้ว: จะเปิด https://YOUR_BACKEND/room?id=1
+  if (ROOM_REDIRECT_BASE && ROOM_REDIRECT_BASE.startsWith("http")) {
+    return `${ROOM_REDIRECT_BASE.replace(/\/+$/, "")}?id=${encodeURIComponent(roomId)}`;
+  }
+  // เผื่อยังไม่ตั้งค่าไว้
+  return "https://example.com";
 }
 
 function openRoom(roomId) {
   const msg = document.getElementById("lobbyMsg");
-  const base = (localStorage.getItem(STORAGE_BASEURL) || "").trim();
-  const url = base ? makeRoomUrl(roomId) : "https://example.com";
+  const url = makeRoomUrl(roomId);
 
-  // เปิดแบบ “หน้าต่างเล็ก” (บนมือถือบางทีจะกลายเป็นแท็บใหม่)
-  const features = [
-    "popup=yes",
-    "width=420",
-    "height=720",
-    "left=50",
-    "top=50",
-    "noopener=yes",
-    "noreferrer=yes"
-  ].join(",");
+  // เปิดออกนอก PWA (Android จะเป็น Custom Tab แบบรูป 2)
+  const a = document.createElement("a");
+  a.href = url;
+  a.target = "_blank";
+  a.rel = "noopener noreferrer";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
 
-  const w = window.open(url, `room_${roomId}`, features);
-
-  if (!w) {
-    msg.textContent = "เบราว์เซอร์บล็อก popup — ให้อนุญาต popups หรือกดค้างเปิดแท็บใหม่";
-    return;
-  }
-
-  msg.textContent = `กำลังเปิดห้อง ${roomId}...`;
+  if (msg) msg.textContent = `เปิดห้อง ${roomId} แล้ว`;
 }
 
 // start
