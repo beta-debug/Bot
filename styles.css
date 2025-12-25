@@ -1,0 +1,97 @@
+:root{
+  --bg:#0b1220;
+  --card:#111827;
+  --muted:#94a3b8;
+  --text:#e5e7eb;
+  --line:#243046;
+  --btn:#2563eb;
+  --btn2:#22c55e;
+  --danger:#ef4444;
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+  background: radial-gradient(1200px 700px at 20% 0%, #18213a, var(--bg));
+  color:var(--text);
+}
+
+.app{min-height:100vh; display:flex; flex-direction:column;}
+.topbar{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 16px; border-bottom:1px solid var(--line);
+  background: rgba(17,24,39,0.7); backdrop-filter: blur(10px);
+}
+.brand{font-weight:800; letter-spacing:0.5px}
+.topbar-right{display:flex; gap:10px; align-items:center}
+
+.root{flex:1; display:flex; justify-content:center; padding:18px}
+.card{
+  width:min(520px, 96vw);
+  background: rgba(17,24,39,0.85);
+  border:1px solid var(--line);
+  border-radius:18px;
+  padding:18px;
+  box-shadow: 0 16px 50px rgba(0,0,0,0.35);
+}
+
+h1{margin:4px 0 14px; font-size:20px}
+p{margin:6px 0; color:var(--muted); line-height:1.5}
+
+.field{margin:10px 0}
+label{display:block; font-size:13px; color:var(--muted); margin-bottom:6px}
+input{
+  width:100%;
+  padding:12px 12px;
+  border-radius:12px;
+  border:1px solid var(--line);
+  background:#0f172a;
+  color:var(--text);
+  outline:none;
+}
+input:focus{border-color:#3b82f6}
+
+.row{display:flex; gap:10px}
+.row > *{flex:1}
+
+.actions{display:flex; gap:10px; margin-top:14px}
+button{
+  border:0; border-radius:12px;
+  padding:12px 14px;
+  cursor:pointer;
+  color:white;
+  font-weight:700;
+}
+.btn{background:var(--btn)}
+.btn2{background:var(--btn2)}
+.btnGhost{
+  background:transparent;
+  border:1px solid var(--line);
+  color:var(--text);
+}
+.btnDanger{background:var(--danger)}
+.small{font-size:12px; color:var(--muted)}
+
+.list{display:flex; flex-direction:column; gap:10px; margin-top:12px}
+.room{
+  display:flex; justify-content:space-between; align-items:center;
+  padding:12px; border-radius:14px;
+  border:1px solid var(--line);
+  background:#0f172a;
+}
+.room .meta{display:flex; flex-direction:column; gap:4px}
+.room .name{font-weight:800}
+.badge{
+  font-size:12px; color:#cbd5e1;
+  border:1px solid var(--line);
+  padding:4px 8px; border-radius:999px;
+}
+
+.footer{
+  padding:12px 16px;
+  border-top:1px solid var(--line);
+  color:var(--muted);
+  font-size:12px;
+  background: rgba(17,24,39,0.55);
+}
