@@ -219,7 +219,7 @@ function renderLobby() {
       openRoom(id);
     });
   });
-}
+
 
   document.getElementById("saveBaseBtn").onclick = () => {
     const v = document.getElementById("baseUrl").value.trim();
@@ -251,7 +251,7 @@ function renderLobby() {
       openRoom(id);
     });
   });
-}
+
 
 function makeRoomUrl(roomId) {
   // ถ้าแอดมินตั้งหลังบ้านแล้ว: จะเปิด https://YOUR_BACKEND/room?id=1
